@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sort A Element</title>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="style.css">
+
+
+    <style>
+
+    </style>
+</head>
+
+<body>
+
+    <div id="header">
+        <img id="logo" src="img/sort a element logo.png">
+    </div>
+    <div id="desc">Sort A Element is a sorting game. Sort elements from the periodic table to each correct category!
+    </div>
+    </div>
+
+    <div id="life-container">Lives: <span id="lives"></span> <span id="heart-indicator">❤️❤️❤️❤️❤️</span></div>
+
+    <div id="container">
+
+        <div id="categories-container">
+
+            <div class="category">
+                <div class="category-label">Metals</div>
+                <div class="category-box droppable" id="droppable-metal"></div>
+            </div>
+            <div class="category">
+                <div class="category-label">Non-Metals</div>
+                <div class="category-box droppable" id="droppable-nmetal"></div>
+            </div>
+            <div class="category">
+                <div class="category-label">Noble Gases</div>
+                <div class="category-box droppable" id="droppable-gas"></div>
+            </div>
+            <div class="category">
+                <div class="category-label">Metalloids</div>
+                <div class="category-box droppable" id="droppable-metalloids"></div>
+            </div>
+        </div>
+        <div id="elements-container">
+            <!-- Elements will be dynamically added here -->
+        </div>
+
+
+
+        <div id="btn-container">
+            <button id="reset-btn">Reset Game</button> <!-- Added reset button -->
+            <button id="next-level-btn" disabled>Next Level</button>
+        </div>
+    </div>
+
+    <div id="statistics">
+        <div id="reset-count">Reset Count: 0</div>
+        <div id="element-placement">Element Placement: Correct: 0, Incorrect: 0</div>
+        <div id="score">Score: 0</div>
+
+    </div>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js"></script>
+    <script>
+
+        var levels = [
+            [
+                { element: "H", name: "Hydrogen", category: "nmetal" },
+                { element: "He", name: "Helium", category: "gas" }
+            ],
+            [
+                { element: "Li", name: "Lithium", category: "metal" },
+                { element: "Be", name: "Beryllium", category: "metal" },
+                { element: "B", name: "Boron", category: "metalloids" },
+                { element: "C", name: "Carbon", category: "nmetal" }
+            ],
+            [
+                { element: "N", name: "Nitrogen", category: "nmetal" },
+                { element: "O", name: "Oxygen", category: "nmetal" },
+                { element: "F", name: "Fluorine", category: "nmetal" },
+                { element: "Ne", name: "Neon", category: "gas" },
+                { element: "Na", name: "Sodium", category: "metal" },
+                { element: "Mg", name: "Magnesium", category: "metal" },
+                { element: "Al", name: "Aluminum", category: "metal" },
+                { element: "Si", name: "Silicon", category: "metalloids" }
+            ],
+            [
+                { element: "P", name: "Phosphorus", category: "nmetal" },
+                { element: "S", name: "Sulfur", category: "nmetal" },
+                { element: "Cl", name: "Chlorine", category: "nmetal" },
+                { element: "Ar", name: "Argon", category: "gas" },
+                { element: "K", name: "Potassium", category: "metal" },
+                { element: "Ca", name: "Calcium", category: "metal" },
+                { element: "Sc", name: "Scandium", category: "metal" },
+                { element: "Ti", name: "Titanium", category: "metal" },
+                { element: "V", name: "Vanadium", category: "metal" },
+                { element: "Cr", name: "Chromium", category: "metal" },
+                { element: "Mn", name: "Manganese", category: "metal" },
+                { element: "Fe", name: "Iron", category: "metal" },
+                { element: "Co", name: "Cobalt", category: "metal" },
+                { element: "Ni", name: "Nickel", category: "metal" },
+                { element: "Cu", name: "Copper", category: "metal" },
+                { element: "Zn", name: "Zinc", category: "metal" }
+            ],
+            [
+                { element: "Ga", name: "Gallium", category: "metal" },
+                { element: "Ge", name: "Germanium", category: "metalloids" },
+                { element: "As", name: "Arsenic", category: "metalloids" },
+                { element: "Se", name: "Selenium", category: "nmetal" },
+                { element: "Br", name: "Bromine", category: "nmetal" },
+                { element: "Kr", name: "Krypton", category: "gas" },
+                { element: "Rb", name: "Rubidium", category: "metal" },
+                { element: "Sr", name: "Strontium", category: "metal" },
+                { element: "Y", name: "Yttrium", category: "metal" },
+                { element: "Zr", name: "Zirconium", category: "metal" },
+                { element: "Nb", name: "Niobium", category: "metal" },
+                { element: "Mo", name: "Molybdenum", category: "metal" },
+                { element: "Tc", name: "Technetium", category: "metal" },
+                { element: "Ru", name: "Ruthenium", category: "metal" },
+                { element: "Rh", name: "Rhodium", category: "metal" },
+                { element: "Pd", name: "Palladium", category: "metal" },
+                { element: "Ag", name: "Silver", category: "metal" },
+                { element: "Cd", name: "Cadmium", category: "metal" },
+                { element: "In", name: "Indium", category: "metal" },
+                { element: "Sn", name: "Tin", category: "metal" }
+            ], [
+                { element: "Sb", name: "Antimony", category: "metalloids" },
+                { element: "Te", name: "Tellurium", category: "metalloids" },
+                { element: "I", name: "Iodine", category: "nmetal" },
+                { element: "Xe", name: "Xenon", category: "gas" },
+                { element: "Cs", name: "Cesium", category: "metal" },
+                { element: "Ba", name: "Barium", category: "metal" },
+                { element: "La", name: "Lanthanum", category: "metal" },
+                { element: "Ce", name: "Cerium", category: "metal" },
+                { element: "Pr", name: "Praseodymium", category: "metal" },
+                { element: "Nd", name: "Neodymium", category: "metal" },
+                { element: "Pm", name: "Promethium", category: "metal" },
+                { element: "Sm", name: "Samarium", category: "metal" },
+                { element: "Eu", name: "Europium", category: "metal" },
+                { element: "Gd", name: "Gadolinium", category: "metal" },
+                { element: "Tb", name: "Terbium", category: "metal" },
+                { element: "Dy", name: "Dysprosium", category: "metal" },
+                { element: "Ho", name: "Holmium", category: "metal" },
+                { element: "Er", name: "Erbium", category: "metal" },
+                { element: "Tm", name: "Thulium", category: "metal" },
+                { element: "Yb", name: "Ytterbium", category: "metal" },
+                { element: "Lu", name: "Lutetium", category: "metal" },
+                { element: "Hf", name: "Hafnium", category: "metal" },
+                { element: "Ta", name: "Tantalum", category: "metal" },
+                { element: "W", name: "Tungsten", category: "metal" },
+                { element: "Re", name: "Rhenium", category: "metal" },
+                { element: "Os", name: "Osmium", category: "metal" },
+                { element: "Ir", name: "Iridium", category: "metal" },
+                { element: "Pt", name: "Platinum", category: "metal" },
+                { element: "Au", name: "Gold", category: "metal" },
+                { element: "Hg", name: "Mercury", category: "metal" },
+                { element: "Tl", name: "Thallium", category: "metal" },
+                { element: "Pb", name: "Lead", category: "metal" },
+                { element: "Bi", name: "Bismuth", category: "metal" },
+                { element: "Po", name: "Polonium", category: "metal" },
+                { element: "At", name: "Astatine", category: "nmetal" },
+                { element: "Rn", name: "Radon", category: "gas" },
+                { element: "Fr", name: "Francium", category: "metal" },
+                { element: "Ra", name: "Radium", category: "metal" },
+                { element: "Ac", name: "Actinium", category: "metal" },
+                { element: "Th", name: "Thorium", category: "metal" },
+                { element: "Pa", name: "Protactinium", category: "metal" },
+                { element: "U", name: "Uranium", category: "metal" },
+                { element: "Np", name: "Neptunium", category: "metal" },
+                { element: "Pu", name: "Plutonium", category: "metal" },
+                { element: "Am", name: "Americium", category: "metal" },
+                { element: "Cm", name: "Curium", category: "metal" },
+                { element: "Bk", name: "Berkelium", category: "metal" },
+                { element: "Cf", name: "Californium", category: "metal" },
+                { element: "Es", name: "Einsteinium", category: "metal" },
+                { element: "Fm", name: "Fermium", category: "metal" },
+                { element: "Md", name: "Mendelevium", category: "metal" },
+                { element: "No", name: "Nobelium", category: "metal" },
+                { element: "Lr", name: "Lawrencium", category: "metal" },
+                { element: "Rf", name: "Rutherfordium", category: "metal" },
+                { element: "Db", name: "Dubnium", category: "metal" },
+                { element: "Sg", name: "Seaborgium", category: "metal" },
+                { element: "Bh", name: "Bohrium", category: "metal" },
+                { element: "Hs", name: "Hassium", category: "metal" },
+                { element: "Mt", name: "Meitnerium", category: "metal" },
+                { element: "Ds", name: "Darmstadtium", category: "metal" },
+                { element: "Rg", name: "Roentgenium", category: "metal" },
+                { element: "Cn", name: "Copernicium", category: "metal" },
+                { element: "Nh", name: "Nihonium", category: "metal" },
+                { element: "Fl", name: "Flerovium", category: "metal" },
+                { element: "Mc", name: "Moscovium", category: "metal" },
+                { element: "Lv", name: "Livermorium", category: "metal" },
+                { element: "Ts", name: "Tennessine", category: "nmetal" },
+                { element: "Og", name: "Oganesson", category: "nmetal" }
+            ]
+
+            // Add more levels as needed
+
+
+        ];
+
+
+        var currentLevel = 0;
+        var totalLives = 5; // Define the total number of lives as a number
+        var currentLives = totalLives;
+        var resetCount = 0;
+        var totalWin = 0;
+        var score = 0;
+        var elementPlacement = { // Initialize element placement statistics
+            correct: 0,
+            incorrect: 0
+        };
+
+        $(function () {
+
+            loadLevel(levels[currentLevel]);
+
+            $(".element").draggable({
+                revert: function (dropped) {
+                    if (!dropped) {
+                        // If not dropped, revert the element to its starting position
+                        $(this).removeClass("droppable-highlight"); // Remove highlight class if present
+                        return true;
+                    } else {
+                        // If dropped, keep it in the droppable if it's correct
+                        return !$(this).hasClass("droppable-highlight");
+                    }
+                },
+                start: function (event, ui) {
+                    $(".ui-droppable").removeClass("ui-state-hover");
+                }
+            });
+
+            $(".droppable").droppable({
+                drop: function (event, ui) {
+                    var category = $(this).attr("id").replace("droppable-", "");
+                    var elementCategory = ui.draggable.data("category");
+                    if (category === elementCategory) {
+                        elementPlacement.correct++;
+                        updateScore();
+                        $(ui.draggable).addClass("droppable-highlight");
+                    } else {
+                          elementPlacement.incorrect++;
+            updateScore();
+
+            const $dropZone = $(this);
+            $dropZone.addClass("droppable-wrong");
+            deductLife();
+
+            // REMOVE red color after 2 seconds
+            setTimeout(function () {
+                $dropZone.removeClass("droppable-wrong");
+            }, 1500);
+                    }
+                    enableNextLevelButton(); // Check if all elements are correctly placed
+                },
+                out: function (event, ui) {
+                    $(this).removeClass("droppable-wrong");
+                    $(this).removeClass("droppable-highlight"); // Remove highlight from the droppable
+                    $(ui.draggable).removeClass("droppable-highlight"); // Remove highlight from the draggable
+                    enableNextLevelButton(); // Check if all elements are correctly placed
+                }
+            });
+
+
+
+            $("#next-level-btn").click(function () {
+                if (currentLevel < levels.length - 2) {
+                    currentLevel++;
+                    $("#elements-container").empty(); // Reset elements
+                    loadLevel(levels[currentLevel]);
+                    currentLives = totalLives;
+                    $("#heart-indicator").text("❤️".repeat(totalLives));
+                    $("#next-level-btn").prop("disabled", true);
+                } else {
+                    totalWin++;
+                    resetCount--;
+                    updateStatistics();
+                    resetGame();
+
+                    alert("Congratulations! You have completed all levels.");
+                }
+            });
+
+            // Reset button click event handler
+            $("#reset-btn").click(function () {
+                resetGame();
+            });
+
+            function checkAllPlaced() {
+                var allPlaced = true;
+                $(".element").each(function () {
+                    if (!$(this).hasClass("droppable-highlight")) {
+                        allPlaced = false;
+                        return false; // Exit the loop early if an element is not correctly placed
+                    }
+                });
+                return allPlaced;
+            }
+
+            function enableNextLevelButton() {
+                if (checkAllPlaced()) {
+                    $("#next-level-btn").prop("disabled", false);
+                } else {
+                    $("#next-level-btn").prop("disabled", true);
+                }
+            }
+
+
+
+            updateStatistics();
+        });
+
+        function loadLevel(elements) {
+            var allElements = levels.reduce((acc, curr) => acc.concat(curr), []);
+
+            // Shuffle the pool of elements
+            allElements = shuffleArray(allElements);
+
+            // Select a subset of elements for the current level
+            var subset = allElements.slice(0, elements.length);
+
+            subset.forEach(function (item) {
+
+                var elementDiv = $('<div class="element draggable">' +
+                    '<div class="element-symbol">' + item.element + '</div>' +
+                    '<div class="element-name">' + item.name + '</div>' +
+                    '</div>');
+
+
+
+
+                elementDiv.attr('data-category', item.category); // Add data-category attribute
+                $("#elements-container").append(elementDiv);
+            });
+            // Make newly added elements draggable
+            $(".draggable").draggable({
+                revert: function (dropped) {
+                    if (!dropped) {
+                        // If not dropped, revert the element to its starting position
+                        $(this).removeClass("droppable-highlight"); // Remove highlight class if present
+                        return true;
+                    } else {
+                        // If dropped, keep it in the droppable if it's correct
+                        return !$(this).hasClass("droppable-highlight");
+                    }
+                },
+                start: function (event, ui) {
+                    $(".ui-droppable").removeClass("ui-state-hover");
+                }
+            });
+        }
+
+        // Function to shuffle an array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+
+        function deductLife() {
+            currentLives--; // Decrement currentLives as a number
+            $("#heart-indicator").text("❤️".repeat(currentLives)); // Update the emoji hearts
+            if (currentLives === 0) {
+                gameOver();
+            }
+        }
+
+        function resetGame() {
+            currentLevel = 0;
+            currentLives = totalLives; // Reset lives to the total number of lives
+            $("#heart-indicator").text("❤️".repeat(currentLives)); // Update the heart indicator
+            $("#elements-container").empty();
+            loadLevel(levels[currentLevel]);
+            $("#next-level-btn").prop("disabled", true); // Enable next level button
+            $(".element").draggable("enable"); // Enable draggable elements
+            UpdateXML();
+            resetCount++;
+
+            // Reset statistics
+            elementPlacement = { correct: 0, incorrect: 0 };
+            score = 0;
+            totalWin = 0;
+
+            updateStatistics();
+            updateScore();
+
+
+
+        }
+
+        function gameOver() {
+            alert("Oops! Game over! You've run out of lives. Click Reset");
+
+            $("#next-level-btn").prop("disabled", true); // Disable next level button
+            $(".element").draggable("disable"); // Disable draggable elements
+            // You can add additional logic here for game over actions
+            resetGame();
+
+        }
+
+        function updateScore() {
+            score = elementPlacement.correct * 10; // Update score based on correct placements
+            totalScore = score + (elementPlacement.incorrect * -5);
+            $("#score").text("Score: " + totalScore);
+            updateStatistics();
+        }
+
+        function updateStatistics() {
+            // Update the HTML display
+            $("#totalWin").text(totalWin);
+            $("#reset-count").text("Reset Count: " + resetCount);
+            $("#element-placement").text("Element Placement: Correct: " + elementPlacement.correct + ", Incorrect: " + elementPlacement.incorrect);
+            $("#score").text("Score: " + totalScore);
+
+            // Prepare data to send
+
+        }
+        function UpdateXML() {
+
+            var data = {
+                bestScore: totalScore,
+                correctElement: elementPlacement.correct,
+                incorrectElement: elementPlacement.incorrect,
+                totalWin: totalWin
+            };
+
+            // Send AJAX request to update_stats.php
+            $.ajax({
+                type: "POST",
+                url: "update-stats.php",
+                data: data,
+                success: function (response) {
+                    console.log("Statistics updated successfully.");
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error updating statistics:", error);
+                }
+            });
+        }
+
+
+
+
+
+    </script>
+
+    <style>
+        #statistics {
+            width: 320px;
+            background-color: #f2f2f2;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .statistic {
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        /* Additional styles for individual statistics */
+        #reset-count {
+            font-weight: bold;
+        }
+
+        #element-placement {
+            font-style: italic;
+        }
+
+        #score {
+            color: #007bff;
+            /* Blue color */
+        }
+    </style>
+
+</body>
+<footer class="game-footer">
+    © 2024 Ron Contreras. All Rights Reserved.
+</footer>
+
+
+</html>
